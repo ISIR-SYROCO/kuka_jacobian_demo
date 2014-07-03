@@ -13,7 +13,17 @@ class KukaJacobianDemoRTNET : public FriRTNetExampleAbstract{
     public:
         KukaJacobianDemoRTNET(std::string const& name);
 
+	Eigen::Vector3d Xcons, Xdes, Err;
+	geometry_msgs::Pose Xmsr;
+	double Kp, Kd, dT,Vmax;
+	
         void updateHook();
+
+	void KukaJacobianDemoRTNET::setXcons(std::vector<double> &X);
+	void KukaJacobianDemoRTNET::setGains(double &KP, double &KD);
+	void KukaJacobianDemoRTNET::setVmax(double &Vm);
+	void KukaJacobianDemoRTNET::setJointImpedance(std::vector<double> &stiffness, std::vector<double> &damping);
+
 };
 
 #endif
