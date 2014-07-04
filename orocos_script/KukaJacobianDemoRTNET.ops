@@ -1,3 +1,5 @@
+// Launch with the GUI button triggering the deployer command scripting.runScript("KukaJacobianDemoRTNET.ops")
+
 import("kuka_jacobian_demo")
 
 KukaDemo.stop
@@ -16,11 +18,11 @@ cp.type = DATA
 //Use mutexes
 cp.lock_policy = LOCKED
 
+
 //Port connection
 connect("KukaDemo.JointPositions_o", "lwr.desJntPos", cp)
 connect("KukaDemo.JointTorques_o", "lwr.desAddJntTrq", cp)
-
-connect("KukaDemo.JointImpedance_o", "lwr.FriJointImpedance", cp)
+connect("KukaDemo.desJntImpedance_o", "lwr.desJntImpedance", cp)
 
 
 connect("lwr.events", "KukaDemo.Events_i", cp)
