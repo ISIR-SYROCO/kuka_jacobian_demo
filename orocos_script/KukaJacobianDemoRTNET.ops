@@ -40,3 +40,5 @@ lwr.control_mode=7
 
 KukaDemo.setControlStrategy(7)
 KukaDemo.start
+
+
