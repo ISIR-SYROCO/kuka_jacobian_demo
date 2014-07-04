@@ -2,7 +2,7 @@
 
 import("kuka_jacobian_demo")
 
-KukaDemo.stop
+KukaDemo.friStop
 unloadComponent("KukaDemo")
 
 loadComponent("KukaDemo","KukaJacobianDemoRTNET")

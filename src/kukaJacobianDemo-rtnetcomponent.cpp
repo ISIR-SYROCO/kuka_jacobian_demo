@@ -64,6 +64,7 @@ void KukaJacobianDemoRTNET::updateHook(){
     RTT::FlowStatus jacobian_fs = jacobianPort.read(Jac);
     RTT::FlowStatus cartPos_fs =  iport_cart_pos.read(Xmsr);
 
+	if(fri_cmd_mode){
 	if(joint_state_fs == RTT::NewData){
 	        Eigen::VectorXd joint_pos(LWRDOF);
 	        std::vector<double> joint_position_command(LWRDOF);
@@ -129,6 +130,7 @@ void KukaJacobianDemoRTNET::updateHook(){
 		}
 	}else{
 		std::cout<<"Cannot read Joint position Port"<<std::endl;
+	}
 	}
 }
 
