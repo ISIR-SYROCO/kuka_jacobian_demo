@@ -1,0 +1,40 @@
+import("kuka_jacobian_demo")
+
+KukaDemo.stop
+unloadComponent("KukaDemo")
+
+loadComponent("KukaDemo","KukaJacobianDemoRTNET")
+setActivity("KukaDemo", 0.001, 90, ORO_SCHED_RT)
+
+
+connectPeers("lwr","KukaDemo")
+KukaDemo.setPeer("lwr")
+
+var ConnPolicy cp
+//Only last data written is accessible
+cp.type = DATA
+//Use mutexes
+cp.lock_policy = LOCKED
+
+//Port connection
+connect("KukaDemo.JointPositions_o", "lwr.desJntPos", cp)
+connect("KukaDemo.JointTorques_o", "lwr.desAddJntTrq", cp)
+
+connect("KukaDemo.JointImpedance_o", "lwr.FriJointImpedance", cp)
+
+
+connect("lwr.events", "KukaDemo.Events_i", cp)
+connect("lwr.msrJntPos", "KukaDemo.MsrJntPos_i", cp)
+connect("lwr.msrJntVel","KukaDemo.msrJntVel_i",cp)
+connect("lwr.msrCartPos", "KukaDemo.MsrCartPos_i", cp)
+connect("lwr.Jacobian", "KukaDemo.Jacobian_i", cp)
+
+
+
+KukaDemo.configure
+
+lwr.control_mode=7
+
+
+KukaDemo.setControlStrategy(7)
+KukaDemo.start

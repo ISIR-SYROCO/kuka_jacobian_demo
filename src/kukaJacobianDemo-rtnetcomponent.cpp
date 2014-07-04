@@ -12,10 +12,10 @@
 #include <math.h>
 
 KukaJacobianDemoRTNET::KukaJacobianDemoRTNET(std::string const& name) : FriRTNetExampleAbstract(name){
-	this->addOperation("setJointImpedance", &KukaJacobianDemoRTNet::setJointImpedance, this, RTT::OwnThread);
-	this->addOperation("setGains", &KukaJacobianDemoRTNet::setGains, this, RTT::OwnThread);
-	this->addOperation("setXcons", &KukaJacobianDemoRTNet::setXcons, this, RTT::OwnThread);
-	this->addOperation("setVmax", &KukaJacobianDemoRTNet::setVmax, this, RTT::OwnThread);
+	this->addOperation("setJointImpedance", &KukaJacobianDemoRTNET::setJointImpedance, this, RTT::OwnThread);
+	this->addOperation("setGains", &KukaJacobianDemoRTNET::setGains, this, RTT::OwnThread);
+	this->addOperation("setXcons", &KukaJacobianDemoRTNET::setXcons, this, RTT::OwnThread);
+	this->addOperation("setVmax", &KukaJacobianDemoRTNET::setVmax, this, RTT::OwnThread);
 	Xcons(0)=0.5;
 	Xcons(1)=0.5;
 	Xcons(2)=0.5;
@@ -26,7 +26,7 @@ KukaJacobianDemoRTNET::KukaJacobianDemoRTNET(std::string const& name) : FriRTNet
 }
 
 
-bool KukaJacobianRTNET::doStart(){
+bool KukaJacobianDemoRTNET::doStart(){
     //setting stiffness
 	std::vector<double> stiff(LWRDOF, 250.0);
 	std::vector<double> damp(LWRDOF, 0.1);
@@ -35,7 +35,7 @@ bool KukaJacobianRTNET::doStart(){
     	return true;
 }
 
-bool FriExampleJacobianRTNet::configureHook(){
+bool KukaJacobianDemoRTNET::configureHook(){
     setPeer("lwr");
     //initialize the arrays that will be send to KRL
     for(int i=0; i<16; ++i){
@@ -66,68 +66,69 @@ void KukaJacobianDemoRTNET::updateHook(){
 
 	if(joint_state_fs == RTT::NewData){
 	        Eigen::VectorXd joint_pos(LWRDOF);
+	        std::vector<double> joint_position_command(LWRDOF);
 	        for(unsigned int i = 0; i < LWRDOF; i++){
 	            joint_pos[i] = JState[i];
 	            joint_position_command[i] = JState[i];
-	        }        
-	}
-    
-	if(joint_vel_fs == RTT::NewData){
-	        Eigen::VectorXd joint_vel(7);
-	        for(unsigned int i = 0; i < LWRDOF; i++){
-	            joint_vel[i] = JVel[i];
 	        }
-	}
 
-	if(jacobian_fs==RTT::NewData){
-		std::vector<double> joint_eff_command;
-	        joint_eff_command.assign(LWRDOF, 0.0);
 
-		if(cartPos_fs==RTT::NewData){
-				
-			if(joint_vel_fs==RTT::NewData){
-
-				Eigen::MatrixXd KukaJac(6,7);
-				KukaJac.noalias() = Jac.data;
-				KukaJac.transposeInPlace();
-				Eigen::VectorXd Xerr(3);
-				Xerr(0)=Xcons(0)-(double)Xmsr.position.x;
-				Xerr(1)=Xcons(1)-(double)Xmsr.position.y;
-				Xerr(2)=Xcons(2)-(double)Xmsr.position.z;
-
-				//discrétisation de la trajectoire
-				if(Xerr.norm()>=dT*Vmax){
-					for(int i=0;i<3;i++){
-						Xdes(i)=(Xerr(i)/Xerr.norm())*dT*Vmax;
-					}
-				}else{
-					Xdes=Xcons;
-				}
-				Err(0)=Xdes(0)-(double)Xmsr.position.x;
-				Err(1)=Xdes(1)-(double)Xmsr.position.y;
-				Err(2)=Xdes(2)-(double)Xmsr.position.z;
-
-				for(int i=0;i<Jac.rows();i++){
-					double results=0;
-					for(int j=0;j<3;j++){
-						results+=KukaJac(i,j)*Kp*Err(j);
-					}
-					joint_eff_command[i] = results-(double)Kd*(double)(joint_vel[i]);
-				}
-							
-				if(requiresControlMode(30)){
-					oport_add_joint_trq.write(joint_eff_command);
-   				}
-     				oport_joint_position.write(joint_position_command);
-			}else{
-				std::cout<<"Cannot read Joint velocity port"<<std::endl;
+		if(joint_vel_fs == RTT::NewData){
+	        	Eigen::VectorXd joint_vel(7);
+	        	for(unsigned int i = 0; i < LWRDOF; i++){
+	            		joint_vel[i] = JVel[i];
 			}
 
+			if(jacobian_fs==RTT::NewData){
+				std::vector<double> joint_eff_command;
+	        		joint_eff_command.assign(LWRDOF, 0.0);
+
+				if(cartPos_fs==RTT::NewData){
+
+					Eigen::MatrixXd KukaJac(6,7);
+					KukaJac.noalias() = Jac.data;
+					KukaJac.transposeInPlace();
+					Eigen::VectorXd Xerr(3);
+					Xerr(0)=Xcons(0)-(double)Xmsr.position.x;
+					Xerr(1)=Xcons(1)-(double)Xmsr.position.y;
+					Xerr(2)=Xcons(2)-(double)Xmsr.position.z;
+
+					//discrétisation de la trajectoire
+					if(Xerr.norm()>=dT*Vmax){
+						for(int i=0;i<3;i++){
+							Xdes(i)=(Xerr(i)/Xerr.norm())*dT*Vmax;
+						}
+					}else{
+						Xdes=Xcons;
+					}
+					Err(0)=Xdes(0)-(double)Xmsr.position.x;
+					Err(1)=Xdes(1)-(double)Xmsr.position.y;
+					Err(2)=Xdes(2)-(double)Xmsr.position.z;
+
+					for(int i=0;i<Jac.rows();i++){
+						double results=0;
+						for(int j=0;j<3;j++){
+							results+=KukaJac(i,j)*Kp*Err(j);
+						}
+						joint_eff_command[i] = results-(double)Kd*(double)(joint_vel[i]);
+					}
+
+					if(requiresControlMode(30)){
+						oport_add_joint_trq.write(joint_eff_command);
+ 					}
+  					oport_joint_position.write(joint_position_command);
+
+				}else{
+					std::cout<<"Cannot read cartesian position port"<<std::endl;
+				}
+			}else{
+				std::cout<<"Cannot read Jacobian Port"<<std::endl;
+			}
 		}else{
-			std::cout<<"Cannot read cartesian position port"<<std::endl;
+			std::cout<<"Cannot read Joint velocity Port"<<std::endl;
 		}
 	}else{
-		std::cout<<"Cannot read Jacobian Port"<<std::endl;
+		std::cout<<"Cannot read Joint position Port"<<std::endl;
 	}
 }
 
