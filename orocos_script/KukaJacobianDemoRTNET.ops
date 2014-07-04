@@ -10,17 +10,10 @@ setActivity("KukaDemo", 0.001, 90, ORO_SCHED_RT)
 connectPeers("lwr","KukaDemo")
 KukaDemo.setPeer("lwr")
 
-var ConnPolicy cp
-//Only last data written is accessible
-cp.type = DATA
-//Use mutexes
-cp.lock_policy = LOCKED
-
 //Port connection
 connect("KukaDemo.JointPositions_o", "lwr.desJntPos", cp)
 connect("KukaDemo.JointTorques_o", "lwr.desAddJntTrq", cp)
-
-connect("KukaDemo.JointImpedance_o", "lwr.FriJointImpedance", cp)
+connect("KukaDemo.desJntImpedance_o", "lwr."desJntImpedance", cp)
 
 
 connect("lwr.events", "KukaDemo.Events_i", cp)
