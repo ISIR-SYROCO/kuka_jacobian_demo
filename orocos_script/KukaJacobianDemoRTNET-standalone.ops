@@ -1,0 +1,40 @@
+// Au démarrage de l'interface ou avec un bouton start
+
+import("lwr_fri")
+import("kuka_jacobian_demo")
+
+loadComponent("lwr", "lwr_fri::FRIRTNetComponent")
+loadComponent("KukaDemo", "KukaJacobianDemoRTNET")
+
+setActivity("lwr", 0, 99, ORO_SCHED_RT)
+setActivity("KukaDemo", 0.001, 90, ORO_SCHED_RT)
+
+lwr.local_port = 49938
+lwr.configure
+
+connectPeers("lwr","KukaDemo")
+KukaDemo.setPeer("lwr")
+
+var ConnPolicy cp
+//Only last data written is accessible
+cp.type = DATA
+//Use mutexes
+cp.lock_policy = LOCKED
+
+//Port connection
+connect("lwr.events", "KukaDemo.Events_i", cp)
+connect("lwr.msrJntPos", "KukaDemo.MsrJntPos_i", cp)
+connect("lwr.msrJntVel","KukaDemo.msrJntVel_i",cp)
+
+
+KukaDemo.configure
+KukaDemo.friReset
+
+lwr.control_mode=7
+lwr.start
+
+
+
+// A envoyer depuis l'interface graphique
+//KukaDemo.setControlStrategy(7)
+//KukaDemo.start
