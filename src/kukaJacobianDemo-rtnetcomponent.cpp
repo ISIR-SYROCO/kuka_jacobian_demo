@@ -21,7 +21,7 @@ KukaJacobianDemoRTNET::KukaJacobianDemoRTNET(std::string const& name) : FriRTNet
 	Xcons(2)=0.5;
 	Kp=6.0;
 	Kd=0.1;
-	dT=this->getPeriod();
+	
 	Vmax=0.00005; //mètres*dT seconds, si dT=1ms alors on a 5cm/s
 }
 
@@ -32,6 +32,8 @@ bool KukaJacobianDemoRTNET::doStart(){
 	std::vector<double> damp(LWRDOF, 0.1);
 	setJointImpedance(stiff, damp);
     	friStart();
+	dT=this->getPeriod();
+	std::cout<<"dT= "<<dT<<std::endl;
     	return true;
 }
 
@@ -42,6 +44,7 @@ bool KukaJacobianDemoRTNET::configureHook(){
         fri_to_krl.intData[i]=0;
         fri_to_krl.realData[i]=0.0;
     }
+	
     return true;
 }
 
@@ -105,7 +108,9 @@ void KukaJacobianDemoRTNET::updateHook(){
 					Err(0)=Xdes(0)-(double)Xmsr.position.x;
 					Err(1)=Xdes(1)-(double)Xmsr.position.y;
 					Err(2)=Xdes(2)-(double)Xmsr.position.z;
-
+					std::cout<< "Xerr = "<< Xerr(0)<<" Yerr = "<< Xerr(1)<<" Zerr = "<<Xerr(2)<<std::endl;
+					//std::cout<< " Kp = "<<Kp<< " Kd = " << Kd << std::endl;
+					//std::cout<<" Vmax = " << Vmax << std::endl;
 					for(int i=0;i<Jac.rows();i++){
 						double results=0;
 						for(int j=0;j<3;j++){
@@ -120,16 +125,16 @@ void KukaJacobianDemoRTNET::updateHook(){
   					oport_joint_position.write(joint_position_command);
 
 				}else{
-					std::cout<<"Cannot read cartesian position port"<<std::endl;
+				//	std::cout<<"Cannot read cartesian position port"<<std::endl;
 				}
 			}else{
-				std::cout<<"Cannot read Jacobian Port"<<std::endl;
+			//	std::cout<<"Cannot read Jacobian Port"<<std::endl;
 			}
 		}else{
-			std::cout<<"Cannot read Joint velocity Port"<<std::endl;
+		//	std::cout<<"Cannot read Joint velocity Port"<<std::endl;
 		}
 	}else{
-		std::cout<<"Cannot read Joint position Port"<<std::endl;
+	//	std::cout<<"Cannot read Joint position Port"<<std::endl;
 	}
 	}
 }
@@ -140,12 +145,12 @@ void KukaJacobianDemoRTNET::setXcons(std::vector<double> &X){
 	}
 }
 
-void KukaJacobianDemoRTNET::setGains(double &KP, double &KD){
+void KukaJacobianDemoRTNET::setGains(double KP, double KD){
 	Kp=KP;
 	Kd=KD;
 }
 
-void KukaJacobianDemoRTNET::setVmax(double &Vm){
+void KukaJacobianDemoRTNET::setVmax(double Vm){
 	Vmax=Vm;
 }
 

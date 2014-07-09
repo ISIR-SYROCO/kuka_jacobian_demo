@@ -25,7 +25,12 @@ cp.lock_policy = LOCKED
 connect("lwr.events", "KukaDemo.Events_i", cp)
 connect("lwr.msrJntPos", "KukaDemo.MsrJntPos_i", cp)
 connect("lwr.msrJntVel","KukaDemo.msrJntVel_i",cp)
+connect("lwr.Jacobian","KukaDemo.Jacobian_i",cp)
+connect("lwr.msrCartPos","KukaDemo.MsrCartPos_i",cp)
 
+connect("KukaDemo.JointPositions_o","lwr.desJntPos",cp)
+connect("KukaDemo.JointTorques_o","lwr.desAddJntTrq",cp)
+connect("KukaDemo.desJntImpedance_o","lwr.desJntImpedance",cp)
 
 KukaDemo.configure
 KukaDemo.friReset
@@ -33,7 +38,10 @@ KukaDemo.friReset
 lwr.control_mode=7
 lwr.start
 
-
+KukaDemo.setGains(2.5,0)
+var array xcons = array(0.5,0.5,0.5)
+KukaDemo.setXcons(xcons)
+KukaDemo.setVmax(0.000005)
 
 // A envoyer depuis l'interface graphique
 //KukaDemo.setControlStrategy(7)

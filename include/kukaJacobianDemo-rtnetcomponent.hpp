@@ -22,8 +22,8 @@ class KukaJacobianDemoRTNET : public FriRTNetExampleAbstract{
         void updateHook();
 
 	void setXcons(std::vector<double> &X);
-	void setGains(double &KP, double &KD);
-	void setVmax(double &Vm);
+	void setGains(double KP, double KD);
+	void setVmax(double Vm);
 	void setJointImpedance(std::vector<double> &stiffness, std::vector<double> &damping);
 
 };
