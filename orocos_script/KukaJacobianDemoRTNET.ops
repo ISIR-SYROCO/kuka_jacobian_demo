@@ -30,15 +30,16 @@ connect("lwr.msrJntPos", "KukaDemo.MsrJntPos_i", cp)
 connect("lwr.msrJntVel","KukaDemo.msrJntVel_i",cp)
 connect("lwr.msrCartPos", "KukaDemo.MsrCartPos_i", cp)
 connect("lwr.Jacobian", "KukaDemo.Jacobian_i", cp)
-
+connect("lwr.estExtJntTrq", "KukaDemo.EstExtJntTrq_i", cp)
+connect("lwr.estExtTcpWrench", "KukaDemo.EstExtTcpWrench_i", cp)
 
 
 KukaDemo.configure
-
+KukaDemo.friReset
 lwr.control_mode=7
 
 
-KukaDemo.setControlStrategy(7)
-KukaDemo.start
+//KukaDemo.setControlStrategy(7)
+//KukaDemo.start
 
 
