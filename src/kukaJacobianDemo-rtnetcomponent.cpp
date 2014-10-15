@@ -90,25 +90,27 @@ void KukaJacobianDemoRTNET::updateHook(){
 
 	  if(cartPos_fs==RTT::NewData){
 
+        //Express the jacobian in the base frame instead of tool frame
+        Jac.changeBase(KDL::Rotation::Quaternion(Xmsr.orientation.x, 
+                                                 Xmsr.orientation.y,
+                                                 Xmsr.orientation.z,
+                                                 Xmsr.orientation.w));
 	    Eigen::MatrixXd KukaJac(6,7);
 	    KukaJac.noalias() = Jac.data;
 	    KukaJac.transposeInPlace();
 	    Eigen::VectorXd Xerr(3);
-	    Xerr(0)=Xcons(0);//-(double)Xmsr.position.x;
-	    Xerr(1)=Xcons(1);//-(double)Xmsr.position.y;
-	    Xerr(2)=Xcons(2);//-(double)Xmsr.position.z;
+	    Xerr(0)=Xcons(0)-(double)Xmsr.position.x;
+	    Xerr(1)=Xcons(1)-(double)Xmsr.position.y;
+	    Xerr(2)=Xcons(2)-(double)Xmsr.position.z;
 
 	    //discrétisation de la trajectoire
-	    //if(Xerr.norm()>=dT*Vmax){
-	    //	for(int i=0;i<3;i++){
-	    //		Xdes(i)=(Xerr(i)/Xerr.norm())*dT*Vmax;
-	    //	}
-	    //}else{
-	    Xdes=Xcons;
-	    //}
-	    Err(0)=Xdes(0);//-(double)Xmsr.position.x;
-	    Err(1)=Xdes(1);//-(double)Xmsr.position.y;
-	    Err(2)=Xdes(2);//-(double)Xmsr.position.z;
+	    if(Xerr.norm()>=dT*Vmax){
+	    	for(int i=0;i<3;i++){
+	    		Err(i)=(Xerr(i)/Xerr.norm())*dT*Vmax;
+	    	}
+	    }else{
+	        Err=Xerr;
+	    }
 	    //std::cout<< "Xerr = "<< Xerr(0)<<" Yerr = "<< Xerr(1)<<" Zerr = "<<Xerr(2)<<std::endl;
 	    //std::cout<< " Kp = "<<Kp<< " Kd = " << Kd << std::endl;
 	    //std::cout<<" Vmax = " << Vmax << std::endl;
