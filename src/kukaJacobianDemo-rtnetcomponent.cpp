@@ -22,7 +22,7 @@ KukaJacobianDemoRTNET::KukaJacobianDemoRTNET(std::string const& name) : FriRTNet
 	Kp=20.0;
 	Kd=1;
 	
-	Vmax=0.00005; //mètres*dT seconds, si dT=1ms alors on a 5cm/s
+	Vmax=0.1; //mètres*dT seconds, si dT=1ms alors on a 5cm/s
 }
 
 
@@ -68,7 +68,7 @@ void KukaJacobianDemoRTNET::updateHook(){
   RTT::FlowStatus cartPos_fs =  iport_cart_pos.read(Xmsr);
 
   if(fri_cmd_mode){
-    std::cout << "Command" << std::endl;
+    //std::cout << "Command" << std::endl;
     if(joint_state_fs == RTT::NewData){
       Eigen::VectorXd joint_pos(LWRDOF);
       std::vector<double> joint_position_command(LWRDOF);
@@ -97,6 +97,9 @@ void KukaJacobianDemoRTNET::updateHook(){
                                                  Xmsr.orientation.w));
 	    Eigen::MatrixXd KukaJac(6,7);
 	    KukaJac.noalias() = Jac.data;
+	    //std::cout << "Jac" << std::endl;
+	    //std::cout << KukaJac << std::endl;
+	    //std::cout << "--" << std::endl;
 	    KukaJac.transposeInPlace();
 	    Eigen::VectorXd Xerr(3);
 	    Xerr(0)=Xcons(0)-(double)Xmsr.position.x;
@@ -104,9 +107,9 @@ void KukaJacobianDemoRTNET::updateHook(){
 	    Xerr(2)=Xcons(2)-(double)Xmsr.position.z;
 
 	    //discrétisation de la trajectoire
-	    if(Xerr.norm()>=dT*Vmax){
+	    if(Xerr.norm()>=Vmax){
 	    	for(int i=0;i<3;i++){
-	    		Err(i)=(Xerr(i)/Xerr.norm())*dT*Vmax;
+	    		Err(i)=(Xerr(i)/Xerr.norm())*Vmax;
 	    	}
 	    }else{
 	        Err=Xerr;
@@ -124,9 +127,13 @@ void KukaJacobianDemoRTNET::updateHook(){
 	      }
       	      joint_eff_command[i] = results;//-(double)Kd*(double)(joint_vel[i]);
 	    }
-	    for(int i=0; i<LWRDOF; ++i)
-	      std::cout << joint_eff_command[i] << " ";
-	    std::cout << std::endl;
+	    //std::cout << "Err" << std::endl;
+	    //for(int i=0; i<3; ++i)
+	    //  std::cout << Err[i] << " ";
+	    //std::cout << "Xerr" << std::endl;
+	    //for(int i=0; i<3; ++i)
+	    //  std::cout << Xerr[i] << " ";
+	    //std::cout << std::endl;
 
 	    if(requiresControlMode(30)){
 	      oport_add_joint_trq.write(joint_eff_command);
